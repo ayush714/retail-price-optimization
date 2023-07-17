@@ -1,8 +1,12 @@
 from typing import List, Tuple
 
 import mlflow
+import mlflow.sklearn
+import mlflow.statsmodels
 import pandas as pd
 import statsmodels.api as sm
+from sklearn import metrics
+from sklearn.linear_model import LinearRegression
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from typing_extensions import Annotated
 from zenml import step
@@ -24,31 +28,59 @@ if not experiment_tracker or not isinstance(
         "this example to work."
     )
 
-@step(experiment_tracker="mlflow_experiment_tracker",
-  settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}}, output_materializers=[StatsModelMaterializer, ListMaterializer])
+# @step(experiment_tracker="mlflow_tracker",
+#   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}}, output_materializers=[StatsModelMaterializer, ListMaterializer], enable_cache=False)
+# def train(
+#     X_train: Annotated[pd.DataFrame, "X_train"],
+#     y_train: Annotated[pd.Series, "y_train"]
+# ) -> Tuple[
+#     Annotated[RegressionResultsWrapper, "model"],
+#     Annotated[List[str], "predictors"],
+# ]:
+#     """Trains a linear regression model and outputs the summary."""
+#     try:
+#         mlflow.end_run()  # End any existing run
+#         with mlflow.start_run() as run:
+#             print(y_train)
+#             lr_model = LinearRegressionModel(X_train, y_train)
+#             mlflow.statsmodels.autolog()
+#             model = lr_model.train()  
+#             df = pd.concat([X_train, y_train], axis=1)
+#             refinement1 = ModelRefinement(model, df)
+#             predictors = refinement1.remove_insignificant_vars(alpha=0.05)  # removes insignificant variables 
+#             mlflow.statsmodels.log_model(model, "model")  # Log the model explicitly
+#             return model, predictors
+#     except Exception as e:
+#         logger.error(e)
+#         raise e
+
+@step(experiment_tracker="mlflow_tracker",
+  settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}},
+  enable_cache=False)
 def train(
     X_train: Annotated[pd.DataFrame, "X_train"],
     y_train: Annotated[pd.Series, "y_train"]
 ) -> Tuple[
-    Annotated[RegressionResultsWrapper, "model"],
+    Annotated[LinearRegression, "model"],
     Annotated[List[str], "predictors"],
 ]:
     """Trains a linear regression model and outputs the summary."""
     try:
-        print(y_train)
-        model = LinearRegressionModel(X_train, y_train)
-        mlflow.statsmodels.autolog()
-        model = model.train()  
-        df = pd.concat([X_train, y_train], axis=1)
-        refinement1 = ModelRefinement(model, df)
-        predictors = refinement1.remove_insignificant_vars(alpha=0.05)  # removes insignificant variables 
-        return model, predictors
+        mlflow.end_run()  # End any existing run
+        with mlflow.start_run() as run:
+            mlflow.sklearn.autolog()  # Automatically logs all sklearn parameters, metrics, and models
+            model = LinearRegression()
+            model.fit(X_train, y_train)  # train the model
+            # Note: You might need to modify the predictors logic as per sklearn model
+            predictors = X_train.columns.tolist()  # considering all columns in X_train as predictors 
+            print(predictors)
+            print(model.predict(X_train))
+            return model, predictors
     except Exception as e:
         logger.error(e)
         raise e
 
-
-@step(experiment_tracker="mlflow_experiment_tracker",
+@step(experiment_tracker="mlflow_tracker",
   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}})
 def re_train(
     X_train: Annotated[pd.DataFrame, "X_train"],

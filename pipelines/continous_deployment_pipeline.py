@@ -28,17 +28,17 @@ def continuous_deployment_pipeline(
     X_train, X_test, y_train, y_test = split_data(df_transformed) 
     model, predictors = train(X_train, y_train) 
     # predictors = remove_insignificant_vars(model, df_transformed, alpha=0.05) 
-    rmse = evaluate(model, df_transformed)
-    model1, df_with_significant_vars = re_train(X_train, y_train, predictors)   
+    # rmse = evaluate(model, df_transformed)
+    # model1, df_with_significant_vars = re_train(X_train, y_train, predictors)   
     
-    rmse1 = evaluate(model1, df_with_significant_vars)
+    # rmse1 = evaluate(model1, df_with_significant_vars)
 
-    deployment_decision = deployment_trigger(
-        accuracy=rmse1, min_accuracy=min_accuracy
-    )
+    # deployment_decision = deployment_trigger(
+    #     accuracy=rmse1, min_accuracy=min_accuracy
+    # )
     mlflow_model_deployer_step(
-        model=model1,
-        deploy_decision=deployment_decision,
+        model=model,
+        # deploy_decision=deployment_decision,
         workers=workers,
         timeout=timeout,
     )
