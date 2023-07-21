@@ -14,7 +14,11 @@ from zenml.client import Client
 from zenml.integrations.mlflow.experiment_trackers import MLFlowExperimentTracker
 from zenml.logger import get_logger
 
-from materializer.custom_materializer import ListMaterializer, StatsModelMaterializer
+from materializer.custom_materializer import (
+    ListMaterializer,
+    SKLearnModelMaterializer,
+    StatsModelMaterializer,
+)
 from steps.src.model_building import LinearRegressionModel, ModelRefinement
 
 logger = get_logger(__name__)
@@ -28,36 +32,10 @@ if not experiment_tracker or not isinstance(
         "this example to work."
     )
 
-# @step(experiment_tracker="mlflow_tracker",
-#   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}}, output_materializers=[StatsModelMaterializer, ListMaterializer], enable_cache=False)
-# def train(
-#     X_train: Annotated[pd.DataFrame, "X_train"],
-#     y_train: Annotated[pd.Series, "y_train"]
-# ) -> Tuple[
-#     Annotated[RegressionResultsWrapper, "model"],
-#     Annotated[List[str], "predictors"],
-# ]:
-#     """Trains a linear regression model and outputs the summary."""
-#     try:
-#         mlflow.end_run()  # End any existing run
-#         with mlflow.start_run() as run:
-#             print(y_train)
-#             lr_model = LinearRegressionModel(X_train, y_train)
-#             mlflow.statsmodels.autolog()
-#             model = lr_model.train()  
-#             df = pd.concat([X_train, y_train], axis=1)
-#             refinement1 = ModelRefinement(model, df)
-#             predictors = refinement1.remove_insignificant_vars(alpha=0.05)  # removes insignificant variables 
-#             mlflow.statsmodels.log_model(model, "model")  # Log the model explicitly
-#             return model, predictors
-#     except Exception as e:
-#         logger.error(e)
-#         raise e
-
 @step(experiment_tracker="mlflow_tracker",
   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}},
-  enable_cache=False)
-def train(
+  enable_cache=False, output_materializers=[SKLearnModelMaterializer, ListMaterializer])
+def sklearn_train(
     X_train: Annotated[pd.DataFrame, "X_train"],
     y_train: Annotated[pd.Series, "y_train"]
 ) -> Tuple[
@@ -80,8 +58,37 @@ def train(
         logger.error(e)
         raise e
 
+# @step(experiment_tracker="mlflow_tracker",
+#   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}},
+#   output_materializers=[StatsModelMaterializer, ListMaterializer],
+#   enable_cache=False)
+# def train(
+#     X_train: Annotated[pd.DataFrame, "X_train"],
+#     y_train: Annotated[pd.Series, "y_train"]
+# ) -> Tuple[
+#     Annotated[RegressionResultsWrapper, "model"],
+#     Annotated[List[str], "predictors"],
+# ]:
+#     """Trains a linear regression model and outputs the summary."""
+#     try:
+#         mlflow.end_run()  # End any existing run
+#         with mlflow.start_run() as run:
+#             print(y_train)
+#             lr_model = LinearRegressionModel(X_train, y_train)
+#             mlflow.statsmodels.autolog()
+#             model = lr_model.train()  
+#             df = pd.concat([X_train, y_train], axis=1)
+#             refinement1 = ModelRefinement(model, df)
+#             predictors = refinement1.remove_insignificant_vars(alpha=0.05)  # removes insignificant variables 
+#             mlflow.statsmodels.log_model(model, "model")  # Log the model explicitly
+#             return model, predictors  # Return the model and predictors
+#     except Exception as e:
+#         logger.error(e)
+#         raise e
+
+
 @step(experiment_tracker="mlflow_tracker",
-  settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}})
+  settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}}, output_materializers=[StatsModelMaterializer, ListMaterializer])
 def re_train(
     X_train: Annotated[pd.DataFrame, "X_train"],
     y_train: Annotated[pd.Series, "y_train"], 
@@ -95,12 +102,12 @@ def re_train(
         print(X_train[predictors])
         model = LinearRegressionModel(X_train[predictors], y_train)
         mlflow.statsmodels.autolog()
-        model = model.train() 
+        model = model.train()  # Train the model
         df_with_significant_vars = pd.concat([X_train[predictors], y_train], axis=1)  
         df_with_significant_vars.rename(columns={"series": 'qty'}, inplace=True) 
         # df_with_significant_vars.to_csv("df_with_significant_vars.csv", index=False)
         logger.info("Model trained successfully")
-        return model, df_with_significant_vars
+        return model, df_with_significant_vars  # Return the model and predictors
     except Exception as e:
         logger.error(e)
-        raise e 
+        raise e

@@ -11,7 +11,7 @@ bento_builder = bento_builder_step.with_options(
         labels={
             "framework": "sklearn",
             "dataset": "retail",
-            "zenml_version": zenml_version,
+            "zenml_version": "zenml_version",
         },
         exclude=["data"],
         python={

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import List
 
 import numpy as np
@@ -88,10 +89,139 @@ class CategoricalEncoder:
 
 
 
-from typing import List
+# class Encoder(ABC):
+#     """
+#     The Encoder interface declares operations common to all supported encoding algorithms.
 
-import numpy as np
-import pandas as pd
+#     Methods:
+#         fit(self, df: pd.DataFrame, col: str)
+#             Fits the encoder using the provided DataFrame and column.
+        
+#         transform(self, df: pd.DataFrame, col: str) -> pd.DataFrame
+#             Transforms the DataFrame using the fitted encoder and returns the transformed DataFrame.
+#     """
+    
+#     @abstractmethod
+#     def fit(self, df: pd.DataFrame, col: str):
+#         """
+#         Fits the encoder using the provided DataFrame and column.
+
+#         Parameters:
+#             df (pd.DataFrame): DataFrame to fit the encoder on.
+#             col (str): Column to fit the encoder on.
+#         """
+#         pass
+
+#     @abstractmethod
+#     def transform(self, df: pd.DataFrame, col: str) -> pd.DataFrame:
+#         """
+#         Transforms the DataFrame using the fitted encoder and returns the transformed DataFrame.
+
+#         Parameters:
+#             df (pd.DataFrame): DataFrame to transform.
+#             col (str): Column to transform.
+
+#         Returns:
+#             df (pd.DataFrame): Transformed DataFrame.
+#         """
+#         pass
+
+
+# class OneHotEncoderStrategy(Encoder):
+#     """
+#     Concrete OneHotEncoderStrategy class implementing the Encoder interface.
+    
+#     Attributes:
+#         encoder (OneHotEncoder): Instance of OneHotEncoder from sklearn.
+
+#     Methods:
+#         fit(self, df: pd.DataFrame, col: str)
+#             Fits the OneHotEncoder using the provided DataFrame and column.
+        
+#         transform(self, df: pd.DataFrame, col: str) -> pd.DataFrame
+#             Transforms the DataFrame using the fitted OneHotEncoder and returns the transformed DataFrame.
+#     """
+
+#     def __init__(self, categories):
+#         self.encoder = OneHotEncoder(sparse=False, categories=categories)
+
+#     def fit(self, df: pd.DataFrame, col: str):
+#         self.encoder.fit(df[[col]])
+
+#     def transform(self, df: pd.DataFrame, col: str) -> pd.DataFrame:
+#         transformed = self.encoder.transform(df[[col]])
+#         transformed = pd.DataFrame(transformed, columns=self.encoder.get_feature_names_out([col]))
+#         return pd.concat([df.drop(columns=[col]), transformed], axis=1)
+
+
+# class OrdinalEncoderStrategy(Encoder):
+#     """
+#     Concrete OrdinalEncoderStrategy class implementing the Encoder interface.
+    
+#     Attributes:
+#         encoder (OrdinalEncoder): Instance of OrdinalEncoder from sklearn.
+
+#     Methods:
+#         fit(self, df: pd.DataFrame, col: str)
+#             Fits the OrdinalEncoder using the provided DataFrame and column.
+        
+#         transform(self, df: pd.DataFrame, col: str) -> pd.DataFrame
+#             Transforms the DataFrame using the fitted OrdinalEncoder and returns the transformed DataFrame.
+#     """
+
+#     def __init__(self, categories):
+#         self.encoder = OrdinalEncoder(categories=categories)
+
+#     def fit(self, df: pd.DataFrame, col: str):
+#         self.encoder.fit(df[[col]])
+
+#     def transform(self, df: pd.DataFrame, col: str) -> pd.DataFrame:
+#         df[col] = self.encoder.transform(df[[col]])
+#         return df
+
+
+# class CategoricalEncoder:
+#     """
+#     The CategoricalEncoder class uses an Encoder strategy to perform encoding.
+    
+#     Attributes:
+#         strategy (Encoder): Instance of Encoder (OneHotEncoderStrategy or OrdinalEncoderStrategy).
+#         encoders (dict): Empty dictionary to store fitted encoders.
+
+#     Methods:
+#         fit(self, df: pd.DataFrame, columns: List[str])
+#             Fits the encoder strategy using the provided DataFrame and columns.
+        
+#         transform(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame
+#             Transforms the DataFrame using the fitted encoder strategy and returns the transformed DataFrame.
+            
+#         fit_transform(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame
+#             Fits the encoder strategy and then transforms the DataFrame, returns the transformed DataFrame.
+#     """
+
+#     def __init__(self, method="onehot", categories='auto'):
+#         if method == "onehot":
+#             self.strategy = OneHotEncoderStrategy(categories)
+#         elif method == "ordinal":
+#             self.strategy = OrdinalEncoderStrategy(categories)
+#         else:
+#             raise ValueError(f"Invalid method: {method}")
+#         self.encoders = {}
+
+#     def fit(self, df: pd.DataFrame, columns: List[str]):
+#         for col in columns:
+#             self.strategy.fit(df, col)
+
+#     def transform(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+#         df_encoded = df.copy()
+#         for col in columns:
+#             df_encoded = self.strategy.transform(df_encoded, col)
+#         return df_encoded
+
+#     def fit_transform(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+#         self.fit(df, columns)
+#         return self.transform(df, columns)
+
 
 
 class OutlierHandler:

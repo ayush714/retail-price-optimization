@@ -46,7 +46,7 @@ from steps.evaluator import evaluate
 from steps.ingest_data import ingest
 from steps.process_data import categorical_encode, feature_engineer
 from steps.refine_model import remove_insignificant_vars
-from steps.train_model import re_train, train
+from steps.train_model import re_train, sklearn_train
 
 docker_settings = DockerSettings(required_integrations=[BENTOML])
 
@@ -58,7 +58,7 @@ def training_retail():
     df_processed = categorical_encode(df)
     df_transformed = feature_engineer(df_processed)  
     X_train, X_test, y_train, y_test = split_data(df_transformed) 
-    model, predictors = train(X_train, y_train)         # Evaluate model
+    model, predictors = sklearn_train(X_train, y_train)         # Evaluate model
     # rmse = evaluate(model, df_transformed)
     rmse = 0.95 
         # Re-train model

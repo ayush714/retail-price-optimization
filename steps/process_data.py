@@ -24,7 +24,8 @@ def categorical_encode(df: pd.DataFrame)  -> pd.DataFrame:
         data: pd.DataFrame: Processed dataframe.
     """
     try:
-        # Apply categorical encoding
+        # Apply categorical encoding 
+        print(df.head())
         encoder = CategoricalEncoder(method="onehot")
         df = encoder.fit_transform(df, columns=["product_id", "product_category_name"])
 
@@ -40,25 +41,53 @@ def categorical_encode(df: pd.DataFrame)  -> pd.DataFrame:
         raise e
 
 
-@step 
+# @step 
+# def feature_engineer(df: pd.DataFrame) -> pd.DataFrame:
+#     """
+#     Performs feature engineering on the data.
+    
+#     Args:
+#         df: pd.DataFrame: Input dataframe to be processed.
+        
+#     Returns:
+#         data: pd.DataFrame: DataFrame after feature engineering.
+#     """
+#     try:
+#         # Apply date feature engineering
+#         date_engineer = DateFeatureEngineer(date_format="%Y-%m-%d")
+#         df_transformed = date_engineer.fit_transform(df, "month_year")
+#         # get the column names 
+#         columns = df_transformed.columns
+#         logger.info("Feature engineering applied successfully") 
+#         df_transformed.drop(["id", "month_year"], axis=1, inplace=True)
+#         return df_transformed
+
+#     except Exception as e:
+#         logger.error(e)
+#         raise e
+
+@step
 def feature_engineer(df: pd.DataFrame) -> pd.DataFrame:
     """
     Performs feature engineering on the data.
     
     Args:
-        df: pd.DataFrame: Input dataframe to be processed.
+        df (pd.DataFrame): Input DataFrame to be processed.
         
     Returns:
-        data: pd.DataFrame: DataFrame after feature engineering.
+        pd.DataFrame: DataFrame after feature engineering.
     """
     try:
         # Apply date feature engineering
         date_engineer = DateFeatureEngineer(date_format="%Y-%m-%d")
-        df_transformed = date_engineer.fit_transform(df, "month_year")
-        # get the column names 
-        columns = df_transformed.columns
+        df_transformed = date_engineer.fit_transform(df, ["month_year"])
+
+        # Log the successful operation
         logger.info("Feature engineering applied successfully") 
+
+        # Drop unnecessary columns
         df_transformed.drop(["id", "month_year"], axis=1, inplace=True)
+
         return df_transformed
 
     except Exception as e:
