@@ -58,34 +58,6 @@ def sklearn_train(
         logger.error(e)
         raise e
 
-# @step(experiment_tracker="mlflow_tracker",
-#   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}},
-#   output_materializers=[StatsModelMaterializer, ListMaterializer],
-#   enable_cache=False)
-# def train(
-#     X_train: Annotated[pd.DataFrame, "X_train"],
-#     y_train: Annotated[pd.Series, "y_train"]
-# ) -> Tuple[
-#     Annotated[RegressionResultsWrapper, "model"],
-#     Annotated[List[str], "predictors"],
-# ]:
-#     """Trains a linear regression model and outputs the summary."""
-#     try:
-#         mlflow.end_run()  # End any existing run
-#         with mlflow.start_run() as run:
-#             print(y_train)
-#             lr_model = LinearRegressionModel(X_train, y_train)
-#             mlflow.statsmodels.autolog()
-#             model = lr_model.train()  
-#             df = pd.concat([X_train, y_train], axis=1)
-#             refinement1 = ModelRefinement(model, df)
-#             predictors = refinement1.remove_insignificant_vars(alpha=0.05)  # removes insignificant variables 
-#             mlflow.statsmodels.log_model(model, "model")  # Log the model explicitly
-#             return model, predictors  # Return the model and predictors
-#     except Exception as e:
-#         logger.error(e)
-#         raise e
-
 
 @step(experiment_tracker="mlflow_tracker",
   settings={"experiment_tracker.mlflow": {"experiment_name": "test_name"}}, output_materializers=[StatsModelMaterializer, ListMaterializer])

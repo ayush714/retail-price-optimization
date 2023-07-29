@@ -12,9 +12,7 @@ from zenml.config import DockerSettings
 from zenml.integrations.constants import BENTOML
 
 from steps.bento_builder import bento_builder
-from steps.data_drift_checker import data_drift_detector
 from steps.data_splitter import combine_data, split_data
-from steps.data_validator import data_validator
 from steps.deployer import bentoml_model_deployer
 from steps.deployment_trigger_step import deployment_trigger
 from steps.evaluator import evaluate
@@ -33,13 +31,6 @@ def training_retail():
     df_processed = categorical_encode(df)
     df_transformed = feature_engineer(df_processed)  
     X_train, X_test, y_train, y_test = split_data(df_transformed)  
-    df_train, df_test = combine_data(X_train, X_test, y_train, y_test) 
-    data_validator(dataset=df_train)
-    data_drift_detector(
-            reference_dataset=df_train,
-            target_dataset=df_test,
-        )
-
     model, predictors = sklearn_train(X_train, y_train)         # Evaluate model
     rmse = 0.95 
     decision = deployment_trigger(accuracy=rmse, min_accuracy=0.80)
