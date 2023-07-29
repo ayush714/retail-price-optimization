@@ -9,7 +9,7 @@ from zenml import step
 from steps.src.data_loader import DataLoader
 
 
-@step()
+@step(enable_cache=False)
 def ingest(
     table_name: str , 
     for_predict: bool = False,
